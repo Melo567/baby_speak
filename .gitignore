@@ -2,6 +2,10 @@
 build/*
 ios/build/*
 
+.idea/
+android/.idea/
+.DS_Store
+
 # Flutter/Dart/Pub
 .dart_tool/
 .flutter-plugins
