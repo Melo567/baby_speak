@@ -1,17 +1,18 @@
+import 'package:audio_recognition_app/status_baby.dart';
 import 'package:flutter/material.dart';
 import 'package:tflite_audio/tflite_audio.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(App());
 }
 
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Baby Speak',
       theme: ThemeData.dark(),
+      debugShowCheckedModeBanner: false,
       home: MyHomePage(),
     );
   }
@@ -23,37 +24,48 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String _sound = "Press the button to start";
+  StatusBaby status = StatusBaby.none;
   bool _recording = false;
-  Stream<Map<dynamic, dynamic>> result;
+  Stream<Map<dynamic, dynamic>>? result;
 
   @override
   void initState() {
     super.initState();
     TfliteAudio.loadModel(
-        model: 'assets/soundclassifier.tflite',
-        label: 'assets/labels.txt',
-        numThreads: 1,
-        isAsset: true);
+      inputType: 'rawAudio',
+      model: 'assets/dunstan_classifier.tflite',
+      label: 'assets/dunstan_labels.txt',
+      numThreads: 1,
+      isAsset: true,
+    );
   }
 
   void _recorder() {
-    String recognition = "";
     if (!_recording) {
       setState(() => _recording = true);
       result = TfliteAudio.startAudioRecognition(
-        numOfInferences: 1,
-        inputType: 'rawAudio',
+        numOfInferences: 60,
         sampleRate: 44100,
-        recordingLength: 44032,
         bufferSize: 22016,
       );
-      result.listen((event) {
-        recognition = event["recognitionResult"];
+      result!.listen((event) {
+        final res = event["recognitionResult"].split(" ")[1];
+        status = StatusBaby.fromLabel(res);
+        if (status != StatusBaby.none) {
+          _stop();
+          showModalBottomSheet(
+            context: context,
+            builder: (context) => Container(
+              height: 200,
+              child: Center(
+                child: Text(status.label),
+              ),
+            ),
+          );
+        }
       }).onDone(() {
         setState(() {
           _recording = false;
-          _sound = recognition.split(" ")[1];
         });
       });
     }
@@ -67,42 +79,19 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/background.jpg"),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              Container(
-                padding: EdgeInsets.all(20),
-                child: Text(
-                  "What's this sound?",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 60,
-                    fontWeight: FontWeight.w200,
-                  ),
-                ),
-              ),
-              MaterialButton(
-                onPressed: _recorder,
-                color: _recording ? Colors.grey : Colors.pink,
-                textColor: Colors.white,
-                child: Icon(Icons.mic, size: 60),
-                shape: CircleBorder(),
-                padding: EdgeInsets.all(25),
-              ),
-              Text(
-                '$_sound',
-                style: Theme.of(context).textTheme.headline5,
-              ),
-            ],
-          ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            MaterialButton(
+              onPressed: _recorder,
+              color: _recording ? Colors.pink : Colors.grey,
+              textColor: Colors.white,
+              child: Icon(Icons.mic, size: 80),
+              shape: CircleBorder(),
+              padding: EdgeInsets.all(40),
+            ),
+          ],
         ),
       ),
     );

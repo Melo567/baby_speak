@@ -1,0 +1,6 @@
+0 Background Noise
+1 Burp
+2 Gaz
+3 Hungry
+4 Tired
+5 Unconfortable
