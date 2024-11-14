@@ -1,4 +1,4 @@
-package com.example.audio_recognition_app
+package com.pierre.rakoto.baby.speak
 
 import io.flutter.embedding.android.FlutterActivity
 

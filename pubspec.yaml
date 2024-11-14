@@ -1,4 +1,4 @@
-name: audio_recognition_app
+name: baby_speak
 description: Flutter application to audio recognition using a Tensorflow Lite classification model
 
 # The following line prevents the package from being accidentally published to

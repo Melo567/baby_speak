@@ -1,4 +1,4 @@
-import 'package:audio_recognition_app/status_baby.dart';
+import 'package:baby_speak/status_baby.dart';
 import 'package:flutter/material.dart';
 import 'package:tflite_audio/tflite_audio.dart';
 
